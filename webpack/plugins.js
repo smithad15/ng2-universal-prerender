@@ -1,14 +1,18 @@
 'use strict';
 
+process.env.TS_NODE_COMPILER_OPTIONS = '{ "module": "commonjs" }';
+require('ts-node/register');
+
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const StyleLintPlugin = require('stylelint-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const ForkCheckerPlugin = require(
-  'awesome-typescript-loader').ForkCheckerPlugin;
+const { ForkCheckerPlugin } = require('awesome-typescript-loader');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const UniversalPrerender = require('./universal-prerender-plugin');
 
 const postcss = require('./postcss');
+const { ServerModule } = require('../.pre-render-prep/server.module');
 
 const sourceMap = process.env.TEST
   ? [new webpack.SourceMapDevToolPlugin({ filename: null, test: /\.ts$/ })]
@@ -21,6 +25,7 @@ const basePlugins = [
     __TEST__: JSON.stringify(process.env.TEST || false),
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
   }),
+
   new HtmlWebpackPlugin({
     template: './src/index.html',
     inject: 'body',
@@ -39,20 +44,27 @@ const basePlugins = [
       return 0;
     },
   }),
+
   new ExtractTextPlugin('styles.[contenthash].css'),
+
   new webpack.NoErrorsPlugin(),
+
   new CopyWebpackPlugin([
     { from: 'src/assets', to: 'assets' },
   ]),
+
   new webpack.LoaderOptionsPlugin({
     test: /\.css$/,
     options: {
       postcss,
     },
   }),
+
   new webpack.ContextReplacementPlugin(
     /angular\/core\/(esm\/src|src)\/linker/, __dirname),
+
   new ForkCheckerPlugin(),
+
 ].concat(sourceMap);
 
 const devPlugins = [
@@ -67,6 +79,7 @@ const prodPlugins = [
   new webpack.optimize.CommonsChunkPlugin({
     name: 'vendor',
   }),
+
   new webpack.optimize.UglifyJsPlugin({
     sourceMap: true,
     mangle: {
@@ -75,6 +88,13 @@ const prodPlugins = [
     compress: {
       warnings: false,
     },
+  }),
+
+  new UniversalPrerender({
+    ngModule: ServerModule,
+    documentPath: './index.html',
+    document: require('../src/index.html'),
+    time: true,
   }),
 ];
 

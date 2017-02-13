@@ -1,21 +1,12 @@
 'use strict';
-const superstatic = require('superstatic').server;
 
-const options = {
-  port: process.env.PORT || 8080,
-  host: '127.0.0.1',
-  config: {
-    public: './dist',
-    rewrites: [
-      { source: '**', destination: '/index.html' },
-    ],
-  },
-  cwd: __dirname,
-  gzip: true,
-};
+const path = require('path');
+const express = require('express');
 
-const app = superstatic(options);
+const app = express();
 
-app.listen(err => {
-  err ? console.error(err) : console.log('Superstatic now serving...');
+app.use(express.static(path.resolve(__dirname)));
+
+const server = app.listen(3000, () => {
+  console.log(`Listening on http://localhost:${server.address().port}`);
 });

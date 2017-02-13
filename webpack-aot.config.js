@@ -1,7 +1,7 @@
 'use strict';
 const webpackConfig = require('./webpack.config.js');
 const loaders = require('./webpack/loaders');
-const AotPlugin =  require('@ngtools/webpack').AotPlugin;
+const { AotPlugin } = require('@ngtools/webpack');
 
 webpackConfig.module.rules = [
   loaders.tslint,

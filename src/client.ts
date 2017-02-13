@@ -1,5 +1,8 @@
+import 'angular2-universal-polyfills';
+import './universal-hotfix-client';
+
 import { enableProdMode } from '@angular/core';
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { platformUniversalDynamic } from 'angular2-universal/browser';
 
 import { AppModule } from './app/app.module';
 
@@ -13,5 +16,5 @@ if (__PRODUCTION__) {
 }
 
 if (!__TEST__) {
-  platformBrowserDynamic().bootstrapModule(AppModule);
+  platformUniversalDynamic().bootstrapModule(AppModule);
 }
